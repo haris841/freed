@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="el">
+<head>
+<title>Μέρες για την Ελευθερία</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fcf8f9">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; }
+  [hidden] { display: none !important; }
+</style>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ελευθερία">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;700;800&family=Mynerve&display=swap">
+<style>
+  /* Layout: a pocket wall-calendar. Counter on top, four months below, pink marker for the crossed days and the big day. */
+  :root {
+    --paper: #fcf8f9;
+    --sheet: #ffffff;
+    --ink: #2a2330;
+    --muted: #8d8391;
+    --rule: #ece2e6;
+    --marker: #e5307a;
+    --marker-soft: #fbe3ed;
+    --shade: rgba(42, 35, 48, .45);
+    --font-hand: "Mynerve", "Bradley Hand", "Segoe Print", cursive;
+    --font-body: "Commissioner", -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1c181e; --sheet: #241f27; --ink: #f4edf1; --muted: #9a8f9e;
+      --rule: #372e3a; --marker: #ff5c9e; --marker-soft: #3d2231; --shade: rgba(0, 0, 0, .6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1c181e; --sheet: #241f27; --ink: #f4edf1; --muted: #9a8f9e;
+    --rule: #372e3a; --marker: #ff5c9e; --marker-soft: #3d2231; --shade: rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 28px 48px;
+    display: grid;
+    gap: 32px;
+  }
+
+  /* Counter */
+  .counter { display: grid; justify-items: center; text-align: center; gap: 2px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  }
+  .big {
+    font-size: clamp(96px, 30vw, 168px); font-weight: 800; line-height: .95;
+    font-variant-numeric: tabular-nums; letter-spacing: -.04em; color: var(--marker);
+  }
+  .big-label { font-family: var(--font-hand); font-size: clamp(24px, 6vw, 32px); line-height: 1.2; }
+  .progress { width: min(320px, 100%); display: grid; gap: 6px; margin-top: 14px; }
+  .bar { height: 6px; border-radius: 3px; background: var(--rule); overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--marker); border-radius: 3px; }
+  .progress small { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* Months */
+  .months { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 20px; }
+  .month {
+    background: var(--sheet); border: 1px solid var(--rule); border-radius: 14px;
+    padding-block: 16px 18px; padding-inline: 12px; min-width: 0;
+  }
+  .month h2 {
+    margin: 0 0 10px 4px; font-family: var(--font-hand); font-weight: 400; font-size: 28px; line-height: 1.1;
+    text-wrap: balance;
+  }
+  .month h2 span { font-family: var(--font-body); font-size: 14px; color: var(--muted); margin-left: 6px; }
+  .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .dow {
+    text-align: center; font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); padding-bottom: 6px;
+  }
+  .day {
+    position: relative; aspect-ratio: 1 / 1; display: grid; place-items: center;
+    font-size: clamp(14px, 3.8vw, 17px); font-variant-numeric: tabular-nums;
+  }
+  .day.before { color: var(--muted); opacity: .45; }
+  .day.after { color: var(--muted); }
+  .day.done .num { color: var(--muted); }
+  .day svg { position: absolute; pointer-events: none; overflow: visible; }
+  .day .x { inset: 12%; width: 76%; height: 76%; }
+  .day .x path {
+    fill: none; stroke: var(--marker); stroke-width: 7; stroke-linecap: round; opacity: .85;
+  }
+  .day.today .num {
+    width: 2.1em; height: 2.1em; display: grid; place-items: center; border-radius: 50%;
+    border: 2px solid var(--ink); font-weight: 700;
+  }
+
+  /* The big day: marker circle with ΕΛΕΥΘΕΡΗ */
+  .day.free { z-index: 2; align-content: center; gap: 0; }
+  .day.free .num { font-weight: 800; color: var(--marker); line-height: 1; }
+  .day.free .word {
+    font-family: var(--font-hand); color: var(--marker); font-size: clamp(9px, 2.5vw, 12.5px);
+    line-height: 1; transform: rotate(-6deg); white-space: nowrap; margin-top: 3px;
+  }
+  .day.free .ring { left: -32%; top: -22%; width: 164%; height: 144%; }
+  .day.free .ring path {
+    fill: none; stroke: var(--marker); stroke-linecap: round; stroke-linejoin: round;
+  }
+  .day.free .ring .a { stroke-width: 4.5; opacity: .9; }
+  .day.free .ring .b { stroke-width: 2.5; opacity: .5; }
+
+  .legend {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; font-size: 13px; color: var(--muted);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend svg { width: 16px; height: 16px; overflow: visible; }
+  .legend path { fill: none; stroke: var(--marker); stroke-width: 9; stroke-linecap: round; }
+  .legend i {
+    width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); display: inline-block;
+  }
+
+  /* Popup */
+  .overlay {
+    position: fixed; inset: 0; z-index: 20; background: var(--shade);
+    display: grid; place-items: center;
+    padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
+             max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    animation: fade .25s ease-out;
+  }
+  .overlay[hidden] { display: none; }
+  .card {
+    width: min(360px, 100%); background: var(--sheet); border-radius: 22px; padding: 30px 24px 22px;
+    display: grid; gap: 14px; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, .25);
+    animation: rise .35s cubic-bezier(.2, .9, .3, 1.2);
+  }
+  .card h1 {
+    margin: 0; font-family: var(--font-hand); font-weight: 400; font-size: 34px; line-height: 1.15;
+    color: var(--marker); text-wrap: balance;
+  }
+  .card p { margin: 0; font-size: 19px; line-height: 1.35; text-wrap: balance; }
+  .card p b { font-size: 30px; font-weight: 800; color: var(--marker); font-variant-numeric: tabular-nums; }
+  .card button {
+    margin-top: 8px; font: 700 17px var(--font-body); color: #fff; background: var(--marker);
+    border: 0; border-radius: 14px; padding: 14px; cursor: pointer;
+  }
+  .card button:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+  @keyframes fade { from { opacity: 0; } }
+  @keyframes rise { from { transform: translateY(16px) scale(.96); opacity: 0; } }
+  .draw path { stroke-dasharray: 120; stroke-dashoffset: 120; animation: draw .35s ease-out forwards; }
+  .draw path + path { animation-delay: .3s; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .overlay, .card { animation: none; }
+    .draw path { animation: none; stroke-dashoffset: 0; }
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <section class="counter" aria-live="polite">
+    <div class="eyebrow">Τρίτη 5 Ιανουαρίου 2027</div>
+    <div class="big" id="big">80</div>
+    <div class="big-label" id="bigLabel">μέρες για την ελευθερία σου</div>
+    <div class="progress">
+      <div class="bar"><span id="bar" style="width:0%"></span></div>
+      <small id="progressText">Πέρασαν 0 από 80 μέρες</small>
+    </div>
+  </section>
+
+  <section class="months" id="months"></section>
+
+  <div class="legend">
+    <span><svg viewBox="0 0 100 100"><path d="M20 20 L80 80 M80 20 L20 80"/></svg>πέρασε</span>
+    <span><i></i>σήμερα</span>
+  </div>
+</div>
+
+<div class="overlay" id="popup" hidden role="dialog" aria-modal="true" aria-labelledby="popTitle">
+  <div class="card">
+    <h1 id="popTitle">Πέρασε άλλη μια μέρα</h1>
+    <p id="popText"><b>80</b> μέρες για την ελευθερία σου</p>
+    <button type="button" id="popClose">Συνέχεια</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var START = new Date(2026, 9, 17);   // 17 Οκτωβρίου 2026, η μέρα που ξεκίνησε η αντίστροφη μέτρηση
+  var FREE = new Date(2027, 0, 5);     // Τρίτη 5 Ιανουαρίου 2027
+  var MONTHS = [[2026, 9], [2026, 10], [2026, 11], [2027, 0]];
+  var NAMES = ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος",
+               "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"];
+  var DOW = ["Δε", "Τρ", "Τε", "Πε", "Πα", "Σα", "Κυ"];
+  var NS = "http://www.w3.org/2000/svg";
+  var TOTAL = diffDays(START, FREE);
+
+  function midnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  // Calendar-day difference, safe across daylight-saving changes.
+  function diffDays(a, b) {
+    return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) -
+                       Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 86400000);
+  }
+  function daysWord(n) { return n === 1 ? "μέρα" : "μέρες"; }
+
+  function svg(cls, viewBox, paths) {
+    var s = document.createElementNS(NS, "svg");
+    s.setAttribute("class", cls);
+    s.setAttribute("viewBox", viewBox);
+    s.setAttribute("aria-hidden", "true");
+    paths.forEach(function (p) {
+      var el = document.createElementNS(NS, "path");
+      el.setAttribute("d", p[0]);
+      if (p[1]) el.setAttribute("class", p[1]);
+      s.appendChild(el);
+    });
+    return s;
+  }
+
+  // A slightly different hand-drawn X on every day, so it looks like a real marker.
+  function crossFor(seed) {
+    function j(k) { var v = Math.sin(seed * 12.9898 + k * 78.233) * 43758.5453; return (v - Math.floor(v)) * 10 - 5; }
+    var d = "M" + (14 + j(1)) + " " + (16 + j(2)) + " Q" + (52 + j(3)) + " " + (46 + j(4)) + " " + (86 + j(5)) + " " + (84 + j(6)) +
+            " M" + (84 + j(7)) + " " + (14 + j(8)) + " Q" + (48 + j(9)) + " " + (52 + j(10)) + " " + (16 + j(11)) + " " + (86 + j(12));
+    var parts = d.split(" M");
+    return svg("x", "0 0 100 100", [[parts[0]], ["M" + parts[1]]]);
+  }
+
+  function ring() {
+    return svg("ring", "0 0 160 120", [
+      ["M30 34 C52 6 128 4 148 42 C164 74 124 112 78 110 C34 108 6 84 14 54 C20 32 52 14 96 13", "a"],
+      ["M26 40 C46 12 122 10 142 44 C156 72 120 104 80 104 C40 104 14 82 20 58", "b"]
+    ]);
+  }
+
+  var lastCrossed = null;
+
+  function render() {
+    var today = midnight(new Date());
+    var left = diffDays(today, FREE);
+    var passed = Math.min(Math.max(diffDays(START, today), 0), TOTAL);
+
+    document.getElementById("big").textContent = Math.max(left, 0);
+    document.getElementById("bigLabel").textContent =
+      left > 0 ? daysWord(left) + " για την ελευθερία σου" : "Είσαι ελεύθερη!";
+    document.getElementById("bar").style.width = (passed / TOTAL * 100).toFixed(1) + "%";
+    document.getElementById("progressText").textContent =
+      "Πέρασαν " + passed + " από " + TOTAL + " μέρες";
+
+    var host = document.getElementById("months");
+    host.textContent = "";
+    lastCrossed = null;
+
+    MONTHS.forEach(function (ym) {
+      var y = ym[0], m = ym[1];
+      var box = document.createElement("article");
+      box.className = "month";
+      var h = document.createElement("h2");
+      h.textContent = NAMES[m];
+      var yr = document.createElement("span");
+      yr.textContent = y;
+      h.appendChild(yr);
+      box.appendChild(h);
+
+      var grid = document.createElement("div");
+      grid.className = "grid";
+      DOW.forEach(function (n) {
+        var c = document.createElement("div");
+        c.className = "dow";
+        c.textContent = n;
+        grid.appendChild(c);
+      });
+      var first = new Date(y, m, 1);
+      var offset = (first.getDay() + 6) % 7; // Δευτέρα πρώτη
+      for (var i = 0; i < offset; i++) grid.appendChild(document.createElement("div"));
+
+      var count = new Date(y, m + 1, 0).getDate();
+      for (var d = 1; d <= count; d++) {
+        var date = new Date(y, m, d);
+        var cell = document.createElement("div");
+        cell.className = "day";
+        var num = document.createElement("span");
+        num.className = "num";
+        num.textContent = d;
+        cell.appendChild(num);
+
+        var t = date.getTime();
+        if (t === FREE.getTime()) {
+          cell.classList.add("free");
+          var w = document.createElement("span");
+          w.className = "word";
+          w.textContent = "ΕΛΕΥΘΕΡΗ";
+          cell.appendChild(w);
+          cell.appendChild(ring());
+          cell.setAttribute("aria-label", "5 Ιανουαρίου 2027: ελεύθερη");
+        } else if (t < START.getTime()) {
+          cell.classList.add("before");
+        } else if (t > FREE.getTime()) {
+          cell.classList.add("after");
+        } else if (t < today.getTime()) {
+          cell.classList.add("done");
+          var x = crossFor(y * 400 + m * 31 + d);
+          cell.appendChild(x);
+          lastCrossed = x;
+        }
+        if (t === today.getTime() && t !== FREE.getTime()) cell.classList.add("today");
+        grid.appendChild(cell);
+      }
+      box.appendChild(grid);
+      host.appendChild(box);
+    });
+  }
+
+  var popup = document.getElementById("popup");
+  var shownOn = null;
+
+  function showPopup() {
+    var today = midnight(new Date());
+    var left = diffDays(today, FREE);
+    var title = document.getElementById("popTitle");
+    var text = document.getElementById("popText");
+    text.textContent = "";
+    if (left > 0) {
+      title.textContent = "Πέρασε άλλη μια μέρα";
+      var b = document.createElement("b");
+      b.textContent = left;
+      text.appendChild(b);
+      text.appendChild(document.createTextNode(" " + daysWord(left) + " για την ελευθερία σου"));
+    } else if (left === 0) {
+      title.textContent = "Σήμερα είναι η μέρα!";
+      text.textContent = "Είσαι ελεύθερη 💗";
+    } else {
+      title.textContent = "Είσαι ελεύθερη!";
+      text.textContent = "Εδώ και " + (-left) + " " + daysWord(-left) + " 💗";
+    }
+    if (lastCrossed) lastCrossed.classList.remove("draw");
+    popup.hidden = false;
+    shownOn = Date.now();
+    document.getElementById("popClose").focus();
+  }
+
+  function closePopup() {
+    if (popup.hidden) return;
+    popup.hidden = true;
+    // Draw yesterday's X once the popup goes away.
+    if (lastCrossed) {
+      void lastCrossed.getBoundingClientRect();
+      lastCrossed.classList.add("draw");
+    }
+  }
+
+  document.getElementById("popClose").addEventListener("click", closePopup);
+  popup.addEventListener("click", function (e) { if (e.target === popup) closePopup(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closePopup(); });
+
+  // A Home Screen page can stay alive in the background, so treat coming back
+  // after a while (or on a new day) as opening it again.
+  var hiddenAt = null;
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    var newDay = shownOn && midnight(new Date(shownOn)).getTime() !== midnight(new Date()).getTime();
+    if (newDay || (hiddenAt && Date.now() - hiddenAt > 5 * 60 * 1000)) {
+      render();
+      showPopup();
+    }
+  });
+
+  render();
+  showPopup();
+})();
+</script>
+</body>
+</html>
